@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!-- 供应商采购信息 -->
+<beans>
+
+	<import resource="supplier_stock_config.xml" />
+
+	<!-- 数据模型管理器，应根据基本信息查询全部分配到财务组织的数据 -->
+	<bean id="SupStockModelDataManager" class="nc.ui.bd.pub.orginfo.model.DefaultAppPFModelDataManager">
+		<property name="orgModel" ref="supStockAppModel" />
+		<property name="baseModel" ref="baseinfoModel" />
+		<property name="exbeanname" value="supplier_stock" />
+	</bean>
+
+	<!-- Mediator 负责基本信息与组织信息之间的交互（处理数据加载等） -->
+	<bean id="supStockMediator" class="nc.ui.bd.pub.orginfo.model.PFOrgInfoMediator">
+		<property name="baseModel" ref="baseinfoModel" />
+		<property name="pfModelDataManager" ref="SupStockModelDataManager" />
+		<property name="orgInfoModel" ref="supStockAppModel" />
+		<property name="orgInfoPanel" ref="supStockListView" />
+	</bean>
+	
+	<bean id="SupStockEditAction" class="nc.ui.bd.supplier.pf.action.SupplierPfOrgTabEditAction">
+		<property name="model">
+			<ref bean="supStockAppModel"/>
+		</property>
+		<property name="code" value="StEdit" />
+		<property name="pfModel" ref="approveModel"/>
+	</bean>
+	
+	<bean id="SupStockSaveAction" class="nc.ui.bd.supplier.pf.action.SupplierPfOrgTabSaveAction">
+		<property name="model" ref="supStockAppModel" />
+		<property name="baseModel" ref="baseinfoModel" />
+		<property name="editor" ref="SupStockInfoView" />
+		<property name="code" value="StSave" />
+		<property name="exbeanname" value="supplier_stock" />
+		<property name="pfModel" ref="approveModel"/>
+	</bean>
+
+	<bean id="supplier_stock" class="nc.ui.bd.uitabextend.DefaultUIExtComponent">
+		<property name="actions">
+			<list>
+				<ref bean="SupStockEditAction" />
+				<ref bean="stockSeparatorAction" />
+				<ref bean="SupStockRefreshAction" />
+			</list>
+		</property>
+		<property name="exComponent" ref="supStockListView" />
+		<property name="closingListener" ref="SupStockClosingListener" />
+	</bean>
+
+	<bean id="supStockDialogContainer" class="nc.ui.uif2.TangramContainer"
+		init-method="initUI">
+		<property name="constraints">
+			<list>
+				<!-- 组织面板 -->
+				<bean class="nc.ui.uif2.tangramlayout.TangramLayoutConstraint">
+					<property name="newComponent" ref="SupStockInfoView" />
+					<property name="newComponentName">
+						<bean class="nc.ui.uif2.I18nFB">
+							<property name="resDir" value="10140sub" />
+							<property name="defaultValue" value="采购信息" />
+							<property name="resId" value="110140sub0008" />
+						</bean>
+					</property>
+				</bean>
+			</list>
+		</property>
+		<property name="actions">
+			<list>
+				<ref bean="SupStockEditAction" />
+				<ref bean="stockSeparatorAction" />
+				<ref bean="SupStockRefreshSingleAction" />
+			</list>
+		</property>
+		<property name="editActions">
+			<list>
+				<ref bean="SupStockSaveAction" />
+				<ref bean="stockSeparatorAction" />
+				<ref bean="SupStockCancelAction" />
+			</list>
+		</property>
+		<property name="model" ref="supStockAppModel" />
+	</bean>
+	
+	<!-- editor -->
+	<bean id="SupStockInfoView" class="nc.ui.bd.supplier.stock.view.SupplierStockView" init-method="initUI">
+		<property name="model">
+			<ref bean="supStockAppModel" />
+		</property>
+		<property name="templateContainer">
+			<ref bean="templateContainer" />
+		</property>
+		<property name="nodekey">
+			<value>stock</value>
+		</property>
+		<property name="userdefitemPreparator">
+			<bean
+				class="nc.ui.uif2.editor.UserdefitemContainerPreparator">
+				<property name="container" ref="userdefitemContainer" />
+				<property name="params">
+					<list>
+						<bean class="nc.ui.uif2.editor.UserdefQueryParam">
+							<property name="mdfullname" value="uap.supstock" />
+							<property name="pos" value="0" />
+							<property name="prefix" value="def" />
+						</bean>					
+					</list>
+				</property>
+			</bean>
+		</property>
+		<property name="bodyActionMap">
+			<map>
+				<entry key="supaddress">
+					<list>
+						<ref bean="stockAddlineAction" />
+						<ref bean="stockDellineAction" />
+					</list>
+				</entry>
+			</map>
+		</property>
+		<property name="actions">
+			<list>
+				<ref bean="SupStockFirstLineAction" />
+				<ref bean="SupStockPreLineAction" />
+				<ref bean="SupStockNextLineAction" />
+				<ref bean="SupStockLastLineAction" />
+			</list>
+		</property>
+		<property name="import" value="true"/>
+	</bean>
+
+</beans>

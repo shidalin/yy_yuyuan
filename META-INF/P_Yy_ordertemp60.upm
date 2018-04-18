@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding='gb2312'?>
+<module name="yuyuan">
+  <public>
+	<component remote="true" singleton="true"  tx="CMT">
+	  <interface>nc.itf.yuyuan.IYy_ordertempMaintain</interface>
+	  <implementation>nc.impl.yuyuan.Yy_ordertempMaintainImpl</implementation>
+	</component>
+
+  </public> 
+</module> 

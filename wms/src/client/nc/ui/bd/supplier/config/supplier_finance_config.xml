@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- 供应商财务信息 -->
+
+	<!-- 扩展页签标识 -->
+	<bean id="supplier_finance" class="nc.ui.bd.uitabextend.DefaultUIExtComponent">
+		<property name="actions">
+			<list>
+				<ref bean="supFinanceEditAction" />
+				<ref bean="supFinanceDeleteAction" />
+				<ref bean="financeseparatorAction" />
+				<ref bean="list_PayFreezeActionGroup" />
+				<ref bean="list_MakeOutFreezeActionGroup" />
+				<ref bean="financeseparatorAction" />
+				<ref bean="supFinanceRefreshAction" />
+				<ref bean="financeseparatorAction" />
+				<ref bean="supFiListPrintActionGroup" />
+			</list>
+		</property>
+		<property name="exComponent" ref="supFinanceListView" />
+		<property name="closingListener">
+			<ref bean="supFinanceClosingListener" />
+		</property>
+	</bean>
+
+	<bean id="userdefitemFinancePreprocessor" class="nc.ui.uif2.editor.UserdefitemUIPreprocessor"
+		init-method="init">
+		<property name="container" ref="userdefitemContainer" />
+		<property name="params">
+			<list>
+				<bean class="nc.ui.uif2.userdefitem.QueryParam">
+					<property name="mdfullname" value="uap.supfinance" />
+				</bean>
+			</list>
+		</property>
+	</bean>
+
+	<!--  ############## model & service ################### -->
+	<bean id="supFinanceService"
+		class="nc.ui.bd.supplier.finance.model.SupFinanceAppModelService">
+	</bean>
+
+	<!-- 组织启用页签的应用模型，应使用OrgInfoBillManageModel -->
+	<bean id="supFinanceAppModel" class="nc.ui.bd.pub.orginfo.model.OrgInfoBillManageModel">
+		<property name="service">
+			<ref bean="supFinanceService" />
+		</property>
+		<property name="context">
+			<ref bean="context" />
+		</property>
+		<property name="businessObjectAdapterFactory">
+			<ref bean="boadapterfacotry" />
+		</property>
+	</bean>
+
+	<!-- 数据模型管理器，应根据基本信息查询全部分配到财务组织的数据 -->
+	<bean id="supFinanceModelDataManager"
+		class="nc.ui.bd.supplier.finance.model.SupFinanceAppModelDataManager">
+		<property name="model">
+			<ref bean="supFinanceAppModel" />
+		</property>
+	</bean>
+
+	<!-- Mediator 负责基本信息与组织信息之间的交互（处理数据加载等） -->
+	<bean id="supFinanceMediator" class="nc.ui.bd.pub.orginfo.model.OrgInfoMediator">
+		<property name="baseModel" ref="baseinfoModel" />
+		<property name="modelDataManager" ref="supFinanceModelDataManager" />
+		<property name="orgInfoModel" ref="supFinanceAppModel" />
+		<property name="orgInfoPanel" ref="supFinanceListView" />
+	</bean>
+
+
+	<!-- 界面元素 ###########################################################-->
+	<!-- 列表视图 组织页签入口，须实现ITabbedPaneAwareComponent -->
+	<bean id="supFinanceListView" class="nc.ui.bd.supplier.finance.view.SupFinanceListView"
+		init-method="initUI">
+		<property name="templateContainer" ref="templateContainer" />
+		<property name="model" ref="supFinanceAppModel" />
+		<property name="nodekey" value="finance" />
+		<property name="name" >
+			<bean class="nc.ui.uif2.I18nFB">
+				<property name="resDir" value="10140sub"/>
+				<property name="defaultValue" value="财务信息"/>
+				<property name="resId" value="110140sub0011"/>
+			</bean>
+		</property>
+		<property name="userdefitemListPreparator">
+			<bean class="nc.ui.uif2.editor.UserdefitemContainerListPreparator">
+				<property name="container" ref="userdefitemContainer" />
+				<property name="params">
+					<list>
+						<bean class="nc.ui.uif2.editor.UserdefQueryParam">
+							<property name="mdfullname" value="uap.supfinance" />
+							<property name="pos" value="0" />
+							<property name="prefix" value="def" />
+						</bean>
+					</list>
+				</property>
+			</bean>
+		</property>
+	</bean>
+
+	<!-- editor -->
+	<bean id="supFinanceView" class="nc.ui.bd.supplier.finance.view.SupplierFinanceView"
+		init-method="initUI">
+		<property name="model">
+			<ref bean="supFinanceAppModel" />
+		</property>
+		<property name="templateContainer">
+			<ref bean="templateContainer" />
+		</property>
+		<property name="nodekey">
+			<value>finance</value>
+		</property>
+		<property name="userdefitemPreparator">
+			<bean class="nc.ui.uif2.editor.UserdefitemContainerPreparator">
+				<property name="container" ref="userdefitemContainer" />
+				<property name="params">
+					<list>
+						<bean class="nc.ui.uif2.editor.UserdefQueryParam">
+							<property name="mdfullname" value="uap.supfinance" />
+							<property name="pos" value="0" />
+							<property name="prefix" value="def" />
+						</bean>
+					</list>
+				</property>
+			</bean>
+		</property>
+		<property name="actions">
+			<list>
+				<ref bean="supFinanceFirstLineAction" />
+				<ref bean="supFinancePreLineAction" />
+				<ref bean="supFinanceNextLineAction" />
+				<ref bean="supFinanceLastLineAction" />
+			</list>
+		</property>
+	</bean>
+
+	<!-- 对话框工具（处理对话框的显示操作） -->
+	<bean id="supFinanceDialogMediator" class="nc.ui.bd.pub.orginfo.model.OrgInfoCardDialogMediator">
+		<property name="model" ref="supFinanceAppModel" />
+		<property name="dialogContainer" ref="supFinanceDialogContainer" />
+		<property name="name" >
+			<bean class="nc.ui.uif2.I18nFB">
+				<property name="resDir" value="10140sub"/>
+				<property name="defaultValue" value="财务信息"/>
+				<property name="resId" value="110140sub0011"/>
+			</bean>
+		</property>
+		<property name="closingListener" ref="supFinanceClosingListener" />
+	</bean>
+
+	<!-- 对话框显示界面dialogContainer -->
+	<bean id="supFinanceDialogContainer" class="nc.ui.uif2.TangramContainer"
+		init-method="initUI">
+		<property name="constraints">
+			<list>
+				<!-- 组织面板 -->
+				<bean class="nc.ui.uif2.tangramlayout.TangramLayoutConstraint">
+					<property name="newComponent" ref="supFinanceView" />
+					<property name="newComponentName" >
+						<bean class="nc.ui.uif2.I18nFB">
+						<property name="resDir" value="10140sub"/>
+						<property name="defaultValue" value="财务信息"/>
+						<property name="resId" value="110140sub0011"/>
+						</bean>
+					</property>				
+				</bean>
+			</list>
+		</property>
+		<property name="actions">
+			<list>
+				<ref bean="supFinanceEditAction" />
+				<ref bean="supFinanceDeleteAction" />
+				<ref bean="financeseparatorAction" />
+				<ref bean="supFinanceRefreshSingleAction" />
+				<ref bean="financeseparatorAction" />
+				<ref bean="supFiPrintActionGroup"/>
+			</list>
+		</property>
+		<property name="editActions">
+			<list>
+				<ref bean="supFinanceSaveAction" />
+				<ref bean="financeseparatorAction" />
+				<ref bean="supFinanceCancelAction" />
+			</list>
+		</property>
+		<property name="model">
+			<ref bean="supFinanceAppModel" />
+		</property>
+	</bean>
+	
+	<!-- action list -->
+	<bean id="financeseparatorAction" class="nc.funcnode.ui.action.SeparatorAction" />
+
+	<bean id="supFinanceEditAction" class="nc.ui.uif2.actions.EditAction">
+		<property name="model">
+			<ref bean="supFinanceAppModel" />
+		</property>
+		<property name="code" value="FiEdit" />
+	</bean>
+
+	<bean id="supFinanceDeleteAction" class="nc.ui.uif2.actions.DeleteAction">
+		<property name="model">
+			<ref bean="supFinanceAppModel" />
+		</property>
+		<property name="code" value="FiDel" />
+	</bean>
+
+	<!-- 冻结按钮 -->
+	<bean name="list_PayFreezeActionGroup" class="nc.funcnode.ui.action.GroupAction">
+		<property name="actions">
+			<list>
+				<ref bean="list_payFreezeAction" />
+				<ref bean="list_unPayFreezeAction" />
+			</list>
+		</property>
+	</bean>
+	
+	<!-- 冻结按钮 -->
+	<bean name="list_MakeOutFreezeActionGroup" class="nc.funcnode.ui.action.GroupAction">
+		<property name="actions">
+			<list>
+				<ref bean="list_makeoutfreezeAction" />
+				<ref bean="list_unmakeoutfreezeAction" />
+			</list>
+		</property>
+	</bean>
+	
+	<bean name="list_payFreezeAction"
+		class="nc.ui.bd.supplier.finance.action.SupBatchPayFreezeAction">
+		<property name="model" ref="supFinanceAppModel" />
+	</bean>
+	<bean name="list_unPayFreezeAction"
+		class="nc.ui.bd.supplier.finance.action.SupBatchUnPayFreezeAction">
+		<property name="model" ref="supFinanceAppModel" />
+	</bean>
+	<bean name="list_makeoutfreezeAction"
+		class="nc.ui.bd.supplier.finance.action.SupBatchMakeOutFreezeAction">
+		<property name="model" ref="supFinanceAppModel" />
+	</bean>
+	<bean name="list_unmakeoutfreezeAction"
+		class="nc.ui.bd.supplier.finance.action.SupBatchUnMakeOutFreezeAction">
+		<property name="model" ref="supFinanceAppModel" />
+	</bean>
+
+
+	<!-- 查询查找按钮 -->
+	<bean id="supFinanceRefreshAction" class="nc.ui.uif2.actions.RefreshAllAction">
+		<property name="model" ref="supFinanceAppModel" />
+		<property name="manager" ref="supFinanceModelDataManager" />
+		<property name="code" value="FiBatchRefresh" />
+	</bean>
+	<bean id="supFinanceRefreshSingleAction" class="nc.ui.uif2.actions.RefreshSingleAction">
+		<property name="model" ref="supFinanceAppModel" />
+		<property name="code" value="FiRefresh" />
+	</bean>
+
+	<bean id="supFinanceSaveAction" class="nc.ui.uif2.actions.SaveAction">
+		<property name="model">
+			<ref bean="supFinanceAppModel" />
+		</property>
+		<property name="editor">
+			<ref bean="supFinanceView" />
+		</property>
+		<property name="code" value="FiSave" />
+	</bean>
+
+	<bean id="supFinanceCancelAction" class="nc.ui.uif2.actions.CancelAction">
+		<property name="model">
+			<ref bean="supFinanceAppModel" />
+		</property>
+		<property name="code" value="FiCancel" />
+	</bean>
+
+	<!-- 输入输出按钮 -->
+	
+	
+	<!-- 输入输出按钮 -->
+	<bean id="supFiListPrintActionGroup" class="nc.funcnode.ui.action.GroupAction">
+		<property name="code">
+			<value>printgroup</value>
+		</property>
+		<property name="actions">
+			<list>
+				<ref bean="supFiListTempletprintaction" />
+				<ref bean="supFiListTempletprintpreviewaction" />
+				<ref bean="supFiListOutputAction"/>
+			</list>
+		</property>
+	</bean>
+		
+	<bean id="supFiListTempletprintpreviewaction" class="nc.ui.uif2.actions.TemplatePreviewAction">
+		<property name="code" value="FiTempPreview" />
+		<property name="model" ref="supFinanceAppModel" />
+		<property name="datasource" ref="supFiListDataSource"></property>
+		<property name="nodeKey" value="supfinancelist"></property>
+		<property name="printDlgParentConatiner" ref="supFinanceListView"></property>
+	</bean>
+	<bean id="supFiListTempletprintaction" class="nc.ui.uif2.actions.TemplatePrintAction">
+		<property name="code" value="FiTempPrint" />
+		<property name="model" ref="supFinanceAppModel" />
+		<property name="datasource" ref="supFiListDataSource"></property>
+		<property name="nodeKey" value="supfinancelist"></property>
+		<property name="printDlgParentConatiner" ref="supFinanceListView"></property>
+	</bean>
+	<bean id="supFiListOutputAction" class="nc.ui.uif2.actions.OutputAction">
+		<property name="code" value="FiOutput"></property>
+		<property name="model" ref="supFinanceAppModel" />
+		<property name="datasource" ref="supFiListDataSource"></property>
+		<property name="nodeKey" value="supfinancelist"></property>
+		<property name="printDlgParentConatiner" ref="supFinanceListView"></property>
+	</bean>
+
+	<bean id="supFiListDataSource" class="nc.ui.bd.pub.actions.print.MetaDataAllDatasSource">
+		<property name="model" ref="supFinanceAppModel"></property>
+	</bean>
+	
+	<bean id="supFiPrintActionGroup" class="nc.funcnode.ui.action.GroupAction">
+		<property name="code">
+			<value>printgroup</value>
+		</property>
+		<property name="actions">
+			<list>
+				<ref bean="supFiTempletprintaction" />
+				<ref bean="supFiTempletprintpreviewaction" />
+				<ref bean="supFiOutputAction"/>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="supFiTempletprintpreviewaction" class="nc.ui.uif2.actions.TemplatePreviewAction">
+		<property name="code" value="FiTempPreview" />
+		<property name="model" ref="supFinanceAppModel" />
+		<property name="datasource" ref="supFiDataSource"></property>
+		<property name="nodeKey" value="supfinance"></property>
+		<property name="printDlgParentConatiner" ref="supFinanceView"></property>
+	</bean>
+
+	<bean id="supFiTempletprintaction" class="nc.ui.uif2.actions.TemplatePrintAction">
+		<property name="code" value="FiTempPrint" />
+		<property name="model" ref="supFinanceAppModel" />
+		<property name="datasource" ref="supFiDataSource"></property>
+		<property name="nodeKey" value="supfinance"></property>
+		<property name="printDlgParentConatiner" ref="supFinanceView"></property>
+	</bean>
+	
+	<bean id="supFiOutputAction" class="nc.ui.uif2.actions.OutputAction">
+		<property name="code" value="FiOutput"></property>
+		<property name="model" ref="supFinanceAppModel" />
+		<property name="datasource" ref="supFiDataSource"></property>
+		<property name="nodeKey" value="supfinance"></property>
+		<property name="printDlgParentConatiner" ref="supFinanceView"></property>
+	</bean>
+
+	<bean id="supFiDataSource" class="nc.ui.bd.pub.actions.print.MetaDataSingleSelectDataSource">
+		<property name="model" ref="supFinanceAppModel"></property>
+	</bean>
+
+	<!-- 浏览按钮 卡片界面按钮-->
+	<bean id="supFinanceFirstLineAction" class="nc.ui.uif2.actions.FirstLineAction">
+		<property name="model" ref="supFinanceAppModel" />
+		<property name="code" value="FiFirstLine" />
+	</bean>
+	<bean id="supFinanceNextLineAction" class="nc.ui.uif2.actions.NextLineAction">
+		<property name="model" ref="supFinanceAppModel" />
+		<property name="code" value="FiNextLine" />
+	</bean>
+	<bean id="supFinancePreLineAction" class="nc.ui.uif2.actions.PreLineAction">
+		<property name="model" ref="supFinanceAppModel" />
+		<property name="code" value="FiPreLine" />
+	</bean>
+	<bean id="supFinanceLastLineAction" class="nc.ui.uif2.actions.LastLineAction">
+		<property name="model" ref="supFinanceAppModel" />
+		<property name="code" value="FiLastLine" />
+	</bean>
+
+
+	<!-- closingHandler -->
+	<bean id="supFinanceClosingListener" class="nc.ui.uif2.FunNodeClosingHandler">
+		<property name="model">
+			<ref bean="supFinanceAppModel" />
+		</property>
+		<property name="saveaction">
+			<ref bean="supFinanceSaveAction" />
+		</property>
+		<property name="cancelaction">
+			<ref bean="supFinanceCancelAction" />
+		</property>
+	</bean>
+</beans>

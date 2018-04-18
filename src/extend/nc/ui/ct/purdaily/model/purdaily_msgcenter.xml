@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- 消息中心打开的节点时处理 -->
+   <bean id="InitDataListener" class="nc.ui.pubapp.uif2app.model.DefaultFuncNodeInitDataListener">
+       <property name="context" ref="context"/> 
+       <property name="model" ref="ManageAppModel"/>
+       <property name="queryAction" ref="queryAction" />
+       <property name="voClassName" value="nc.vo.ct.purdaily.entity.AggCtPuVO"/>
+       <property name="autoShowUpComponent" ref="billFormEditor"/>
+       <property name="processorMap">
+       	<map>
+       	 <entry key = "28"> 
+       	  <bean class ="nc.ui.ct.purdaily.billref.CtPuInitDataProcessor">
+       	  	<property name="transferProcessor" ref="transferViewProcessor1"/>
+          </bean>
+       	 </entry>
+       	 <entry key = "3"> 
+       	  <bean class ="nc.ui.ct.view.CTLinkQueryInitDataProcessor">
+       	  	<property name="funNodeInitDataListener" ref="InitDataListener"/>
+       	  	<property name="view" ref="listViewHistory"/>
+          </bean>
+       	 </entry>   
+       	 
+       	 <entry key = "47"> 
+       	  <bean class ="nc.ui.ct.purdaily.billref.CtPuInitDataProcessorForEC">
+       	  	<property name="transferProcessor" ref="transferViewProcessor1"/>
+          </bean>
+       	 </entry>    	
+       	 <!-- EC联查合同打开合同节点 -->
+       	  <entry key = "8"> 
+       	  <bean class ="nc.ui.ct.purdaily.view.CtPuOpenNodeInitDataProcessor">
+       	  	<property name="funNodeInitDataListener" ref="InitDataListener"/>
+          </bean>
+       	 </entry> 
+        </map>
+       </property>
+   </bean>
+	
+</beans>

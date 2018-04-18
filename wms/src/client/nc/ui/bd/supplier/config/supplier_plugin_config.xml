@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!-- 供应商扩展配置文件 -->
+<beans>
+
+	<bean id="bodyActionMediator" class="nc.ui.bd.supplier.baseinfo.model.SupplierExtComponent" init-method="initUI">
+		<property name="container"><ref bean="container"/></property>
+		<property name="targetComponent">
+			<ref bean="baseinfoCardView"/>
+		</property>
+		<property name="insertPosition"><value>body</value></property>
+		<property name="bodyTabName"><value>suplinkman</value></property>
+		<property name="actions">
+			<list>
+				<bean class="nc.ui.uif2.actions.batch.BatchAddLineAction"/>
+				<bean class="nc.ui.uif2.actions.batch.BatchCopyLineAction"/>
+				<bean class="nc.ui.uif2.actions.batch.BatchDelLineAction"/>
+				<bean class="nc.ui.uif2.actions.batch.BatchInsLineAction"/>
+				<bean class="nc.ui.uif2.actions.batch.BatchPasteLineAction"/>
+			</list>
+		</property>
+	</bean>
+
+</beans>

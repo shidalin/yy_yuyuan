@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!-- 环境变量 -->
+	<bean id="context" class="nc.vo.uif2.LoginContext" />
+
+	<bean id="exinfoloader" class="nc.ui.bd.uitabextend.ExinfoLoader">
+		<property name="current_md_ID" value="10140SOB"></property>
+	</bean>
+
+	<!-- 扩展点管理 -->
+	<bean id="uiTabExtMnger" class="nc.ui.bd.uitabextend.UITabExtManager">
+		<property name="targetComponent" ref="baseUI" />
+	</bean>
+	
+	<bean id="remoteCallCombinatorCaller" class="nc.ui.uif2.editor.UIF2RemoteCallCombinatorCaller">
+		<property name="remoteCallers">
+			<list>
+				<ref bean="templateContainer" />
+				<ref bean="userdefitemContainer" />
+			</list>
+		</property>
+	</bean>
+
+	<!-- 模板加载器，负责对子页签的模板做统一装载 -->
+	<bean id="templateContainer" class="nc.ui.uif2.editor.TemplateContainer" init-method="load">
+		<property name="context" ref="context" />
+	</bean>
+
+	<bean id="userdefitemContainer" class="nc.ui.uif2.userdefitem.UserDefItemContainer">
+		<property name="context" ref="context" />
+	</bean>
+
+
+	<!-- Action加载器, 用来加载各个子页签的Actions -->
+	<bean id="toftpanelActionContributors" class="nc.ui.uif2.actions.ActionContributors">
+		<property name="contributors">
+			<list></list>
+		</property>
+	</bean>
+	
+	<!-- 界面元素 ###########################################################-->
+	<!--卡控件-->
+	<bean id="baseUI" class="nc.ui.bd.pub.query.OrgBrowseBaseUI" />
+
+	<bean id="InitDataListener" class="nc.ui.bd.pub.query.OrgBrowseInitDataListener">
+		<property name="baseUI" ref="baseUI" />
+		<property name="container" ref="container" />
+		<property name="uiTabExtMnger" ref="uiTabExtMnger" />
+	</bean>
+
+	<!--  Actions ############################################################# -->
+	<bean id="separatorAction" class="nc.funcnode.ui.action.SeparatorAction" />
+
+	<!-- 界面布局总装########################################################### -->
+	<bean id="container" class="nc.ui.uif2.TangramContainer" init-method="initUI">
+		<property name="tangramLayoutRoot">
+			<bean class="nc.ui.uif2.tangramlayout.node.TBNode">
+				<property name="tabs">
+					<list>
+						<bean class="nc.ui.uif2.tangramlayout.node.CNode">
+							<property name="component" ref="baseUI" />
+						</bean>
+					</list>
+				</property>
+			</bean>
+		</property>
+	</bean>
+</beans>

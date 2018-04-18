@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<module>
+	<public>
+		<component name="changeinfoservlet" accessProtected="false" remote="false"
+			singleton="true" tx="NONE">
+			<implementation>nc.pubitf.ecbd.datasynchro.ChangeInfoServlet</implementation>
+		</component>
+	</public>
+	<private>
+	</private>
+</module>

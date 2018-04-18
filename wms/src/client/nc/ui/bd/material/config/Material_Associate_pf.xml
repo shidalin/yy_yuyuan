@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+ 
+	<!-- 远程调用加载器 -->
+	<bean id="remoteCallCombinatorCaller" class="nc.ui.uif2.editor.UIF2RemoteCallCombinatorCaller">
+		<property name="remoteCallers">
+			<list>
+				<ref bean="templateContainer" />
+			</list>
+		</property>
+	</bean>
+
+	<!-- 模板加载器：扩展页签必需 -->
+	<bean id="associateTemplateContainer" class="nc.ui.uif2.editor.TemplateContainer"
+		init-method="load">
+		<property name="context" ref="context" />
+		<property name="nodeKeies">
+			<list>
+				<value>approve</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="dialogContainer" class="nc.ui.uif2.PlugableTangramContainer"
+		init-method="initUI">
+		<property name="tangramLayoutRoot">
+			<bean class="nc.ui.uif2.tangramlayout.node.VSNode">
+				<property name="up">
+					<bean class="nc.ui.uif2.tangramlayout.node.CNode">
+						<property name="component" ref="approveEditor" />
+					</bean>
+				</property>
+				<property name="down">
+					<bean class="nc.ui.uif2.tangramlayout.node.TBNode">
+						<property name="tabs">
+							<list>
+								<bean class="nc.ui.uif2.tangramlayout.node.CNode">
+									<property name="name">
+										<bean class="nc.ui.uif2.I18nFB ">
+											<property name="resDir" value="10140mpf" />
+											<property name="defaultValue" value="物料信息" />
+											<property name="resId" value="010140mpf0002" />
+										</bean>
+									</property>
+									<property name="component" ref="dataEditor" />
+								</bean>
+							</list>
+						</property>
+					</bean>
+				</property>
+				<property name="dividerLocation" value="0.3f" />
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="approveModel" class="nc.ui.uif2.model.BillManageModel">
+		<property name="businessObjectAdapterFactory" ref="boadapterfacotry" />
+		<property name="context" ref="context" />
+	</bean>
+
+	<bean id="boadapterfacotry" class="nc.vo.bd.meta.BDObjectAdpaterFactory" />
+
+	<bean id="approveEditor" class="nc.ui.bd.material.pf.view.MaterialPfApproveEditor"
+		init-method="initUI">
+		<property name="model" ref="approveModel" />
+		<property name="templateContainer" ref="associateTemplateContainer" />
+		<property name="nodekey" value="approve" />
+		<property name="dataEditor" ref="dataEditor" />
+	</bean>
+
+	<bean id="dataEditor" class="nc.ui.bd.material.pf.view.MaterialPfDataEditor"
+		init-method="initUI">
+		<property name="model" ref="approveModel" />
+		<property name="templateContainer" ref="templateContainer" />
+		<property name="nodekey" value="base" />
+		<property name="userdefitemPreparator">
+			<bean class="nc.ui.uif2.editor.UserdefitemContainerPreparator">
+				<property name="container" ref="userdefitemContainer" />
+				<property name="params">
+					<list>
+						<bean name="cardUserdefitemQueryParam" class="nc.ui.uif2.editor.UserdefQueryParam">
+							<property name="mdfullname" value="uap.material" />
+							<property name="pos" value="0" />
+							<property name="prefix" value="def" />
+						</bean>
+					</list>
+				</property>
+			</bean>
+		</property>
+	</bean>
+
+</beans>
+
+

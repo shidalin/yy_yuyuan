@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+	<!-- 按组织查看供应商采购信息 -->
+
+	<!-- 扩展页签标识 -->
+	<bean id="supplier_ob_stock" class="nc.ui.bd.uitabextend.DefaultUIExtComponent">
+		<property name="actions">
+			<list>
+				<ref bean="obStockRefreshAction" />
+				<ref bean="separatorAction" />
+				<ref bean="obStockPrintGroupAction" />
+			</list>
+		</property>
+		<property name="exComponent" ref="stockEntry" />
+	</bean>
+
+	<bean id="userdefitemFinancePreprocessor" class="nc.ui.uif2.editor.UserdefitemUIPreprocessor"
+		init-method="init">
+		<property name="container" ref="userdefitemContainer" />
+		<property name="params">
+			<list>
+				<bean class="nc.ui.uif2.userdefitem.QueryParam">
+					<property name="mdfullname" value="uap.supstock" />
+				</bean>
+			</list>
+		</property>
+	</bean>
+
+	<!-- 界面布局 入口须实现ITabbedPaneAwareComponent-->
+	<bean id="stockEntry" class="nc.ui.bd.pub.query.OrgQueryRefPanel"
+		init-method="initUI">
+		<property name="model" ref="obSupStockAppModel" />
+		<property name="dataManager" ref="stockModelDataManager" />
+		<property name="refNodeName" value="采购组织" />
+		<property name="labelName" >
+			<bean class="nc.ui.uif2.I18nFB">
+				<property name="resDir" value="10140sub"/>
+				<property name="defaultValue" value="采购组织"/>
+				<property name="resId" value="110140sub0015"/>
+			</bean>
+		</property>
+		<property name="pageCode" value="stock_info" />
+		<property name="listView" ref="obSupStockListView" />
+		<property name="name">
+			 <bean class="nc.ui.uif2.I18nFB">
+			 	<property name="resDir" value="10140sub"/>
+			 	<property name="defaultValue" value="采购信息"/>
+			 	<property name="resId" value="110140sub0008"/>
+			 </bean>
+		</property>
+	</bean>
+
+	<!-- 界面元素 ###########################################################-->
+	<!-- 列表视图 -->
+	<bean id="obSupStockListView" class="nc.ui.bd.supplier.stock.view.SupStockListView"
+		init-method="initUI">
+		<property name="templateContainer" ref="templateContainer" />
+		<property name="model" ref="obSupStockAppModel" />
+		<property name="nodekey" value="ob_stock" />
+		<property name="name">
+			 <bean class="nc.ui.uif2.I18nFB">
+			 	<property name="resDir" value="10140sub"/>
+			 	<property name="defaultValue" value="采购信息"/>
+			 	<property name="resId" value="110140sub0008"/>
+			 </bean>
+		</property>
+		<property name="billListPanelValueSetter">
+			<bean class="nc.ui.uif2.editor.BillListView$VOBillListPanelValueSetter" />
+		</property>
+		<property name="userdefitemListPreparator">
+			<bean class="nc.ui.uif2.editor.UserdefitemContainerListPreparator">
+				<property name="container" ref="userdefitemContainer"></property>
+				<property name="params">
+					<list>
+						<bean class="nc.ui.uif2.editor.UserdefQueryParam">
+							<property name="mdfullname" value="uap.supstock" />
+							<property name="pos" value="0" />
+							<property name="prefix" value="def" />
+						</bean>
+					</list>
+				</property>
+			</bean>
+		</property>
+		<property name="south" ref="stockPaginationBar"></property>
+	</bean>
+
+	<!-- 模型 -->
+	<bean id="obSupStockAppModel" class="nc.ui.uif2.model.BillManageModel">
+		<property name="context" ref="context" />
+		<property name="businessObjectAdapterFactory">
+			<bean class="nc.vo.bd.meta.GeneralBDObjectAdapterFactory">
+				<property name="mode" value="VO" />
+			</bean>
+		</property>
+	</bean>
+	<bean id="stockModelDataManager" class="nc.ui.bd.supplier.stock.model.SupStockOBDataManager">
+		<property name="model" ref="obSupStockAppModel" />
+		<property name="paginationModel" ref="stockPaginationModel" />
+		<property name="delegator" ref="stockPaginationDelegator" />
+		<property name="service" ref="stockService" />
+	</bean>
+	<bean id="stockService" class="nc.ui.bd.supplier.stock.model.SupStockAppModelService" />
+
+
+
+	<!-- 分页面板 -->
+	<bean id="stockPaginationBar" class="nc.ui.uif2.components.pagination.PaginationBar">
+		<property name="paginationModel">
+			<ref bean="stockPaginationModel" />
+		</property>
+	</bean>
+
+	<!-- 分页model -->
+	<bean id="stockPaginationModel" class="nc.ui.uif2.components.pagination.PaginationModel"
+		init-method="init">
+		<property name="paginationQueryService">
+			<ref bean="stockService" />
+		</property>
+	</bean>
+	<bean id="stockPaginationDelegator"
+		class="nc.ui.uif2.components.pagination.BillManagePaginationDelegator">
+		<property name="paginationModel">
+			<ref bean="stockPaginationModel" />
+		</property>
+		<property name="billModel">
+			<ref bean="obSupStockAppModel" />
+		</property>
+	</bean>
+
+	<!-- Action -->
+	<bean id="obStockRefreshAction" class="nc.ui.uif2.actions.RefreshAllAction">
+		<property name="model" ref="obSupStockAppModel" />
+		<property name="manager" ref="stockModelDataManager"></property>
+	</bean>
+	<bean id="obStockPrintGroupAction" class="nc.funcnode.ui.action.GroupAction">
+		<property name="code" value="Print"></property>
+		<property name="actions">
+			<list>
+				<ref bean="obStockPrintAction" />
+				<ref bean="obStockPreviewAction" />
+				<ref bean="obStockOutputAction" />
+			</list>
+		</property>
+	</bean>
+	<bean id="obStockPrintAction"
+		class="nc.ui.bd.pub.actions.print.BDTemplatePaginationPrintAction">
+		<property name="model" ref="obSupStockAppModel" />
+		<property name="nodeKey" value="purchasequery" />
+		<property name="paginationModel" ref="stockPaginationModel" />
+		<property name="printFactory" ref="stockFactory" />
+		<property name="printDlgParentConatiner" ref="obSupStockListView" />
+	</bean>
+	<bean id="obStockPreviewAction"
+		class="nc.ui.bd.pub.actions.print.BDTemplatePaginationPreviewAction">
+		<property name="printAction" ref="obStockPrintAction" />
+	</bean>
+	<bean id="obStockOutputAction" class="nc.ui.bd.pub.actions.print.BDPaginationOutputAction">
+		<property name="model" ref="obSupStockAppModel" />
+		<property name="nodeKey" value="purchasequery" />
+		<property name="paginationModel" ref="stockPaginationModel" />
+		<property name="printFactory" ref="stockFactory" />
+		<property name="printDlgParentConatiner" ref="obSupStockListView" />
+	</bean>
+	<bean id="stockFactory"
+		class="nc.ui.bd.pub.actions.print.DefaultTemplatePagePrintFactory">
+		<property name="mdId" value="92eed375-f4bb-4852-b537-e31c5269bab8" />
+		<property name="qryService">
+			<bean class="nc.ui.bd.pub.orginfo.model.OrgInfoPrintDataQryService">
+				<constructor-arg value="92eed375-f4bb-4852-b537-e31c5269bab8" />
+				<property name="paths">
+					<list>
+						<value>pk_supplier.pk_org.name</value>
+						<value>pk_supplier.code</value>
+						<value>pk_supplier.name</value>
+					</list>
+				</property>
+			</bean>
+		</property>
+	</bean>
+</beans>

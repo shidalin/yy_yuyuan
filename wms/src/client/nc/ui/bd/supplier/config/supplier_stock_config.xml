@@ -1,0 +1,385 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!-- 供应商采购信息 -->
+<beans>
+
+	<!-- 扩展页签标识 -->
+	<bean id="supplier_stock" class="nc.ui.bd.uitabextend.DefaultUIExtComponent">
+		<property name="actions">
+			<list>
+				<ref bean="SupStockEditAction" />
+				<ref bean="SupStockDeleteAction" />
+				<ref bean="stockSeparatorAction" />
+				<ref bean="supaddressAction"/>
+				<ref bean="list_stockFreezeActionGroup" />
+				<ref bean="stockSeparatorAction" />
+				<ref bean="SupStockRefreshAction" />
+				<ref bean="stockSeparatorAction" />
+				<ref bean="SupStListPrintActionGroup" />
+			</list>
+		</property>
+		<property name="exComponent">
+			<ref bean="supStockListView" />
+		</property>
+		<property name="closingListener">
+			<ref bean="SupStockClosingListener" />
+		</property>
+	</bean>
+	
+	<bean id="userdefitemSalePreprocessor"
+		class="nc.ui.uif2.editor.UserdefitemUIPreprocessor"
+		init-method="init">
+		<property name="container" ref="userdefitemContainer" />
+		<property name="params">
+			<list>
+				<bean class="nc.ui.uif2.userdefitem.QueryParam">
+					<property name="mdfullname"
+						value="uap.supstock" />
+				</bean>
+			</list>
+		</property>
+	</bean>
+	
+	<!--  ############## model & service ################### --> 
+	<bean id="SupStockAppModelService" class="nc.ui.bd.supplier.stock.model.SupStockAppModelService"></bean>
+	
+	<!-- 组织启用页签的应用模型，应使用OrgInfoBillManageModel -->
+	<bean id="supStockAppModel" class="nc.ui.bd.pub.orginfo.model.OrgInfoBillManageModel">
+		<property name="service">
+			<ref bean="SupStockAppModelService" />
+		</property>
+		<property name="businessObjectAdapterFactory">
+			<ref bean="boadapterfacotry" />
+		</property>
+		<property name="context">
+			<ref bean="context" />
+		</property>
+	</bean>
+
+	<!-- 数据模型管理器，应根据基本信息查询全部分配到财务组织的数据 -->
+	<bean id="SupStockModelDataManager" class="nc.ui.bd.supplier.stock.model.SupStockAppModelDataManager">
+		<property name="model">
+			<ref bean="supStockAppModel" />
+		</property>
+	</bean>
+
+	<!-- Mediator 负责基本信息与组织信息之间的交互（处理数据加载等） -->
+	<bean id="supStockMediator" class="nc.ui.bd.pub.orginfo.model.OrgInfoMediator">
+		<property name="baseModel" ref="baseinfoModel" />
+		<property name="modelDataManager" ref="SupStockModelDataManager" />
+		<property name="orgInfoModel" ref="supStockAppModel" />
+		<property name="orgInfoPanel" ref="supStockListView" />
+	</bean>
+	
+	<!-- 界面元素 ###########################################################-->
+	<!-- 列表视图 组织页签入口，须实现ITabbedPaneAwareComponent -->
+	<bean id="supStockListView" class="nc.ui.bd.supplier.stock.view.SupStockListView" init-method="initUI">
+		<property name="templateContainer" ref="templateContainer" />
+		<property name="model" ref="supStockAppModel" />
+		<property name="nodekey" value="stock" />
+		<property name="name">
+			<bean class="nc.ui.uif2.I18nFB">
+				<property name="resDir" value="10140sub"/>
+				<property name="defaultValue" value="采购信息"/>
+				<property name="resId" value="110140sub0008"/>
+			</bean>
+		</property>
+		<property name="userdefitemListPreparator">
+			<bean
+				class="nc.ui.uif2.editor.UserdefitemContainerListPreparator">
+				<property name="container" ref="userdefitemContainer" />
+				<property name="params">
+					<list>
+						<bean class="nc.ui.uif2.editor.UserdefQueryParam">
+							<property name="mdfullname" value="uap.supstock" />
+							<property name="pos" value="0" />
+							<property name="prefix" value="def" />
+						</bean>					
+					</list>
+				</property>
+			</bean>
+		</property>
+	</bean>
+	
+	<!-- editor -->
+	<bean id="SupStockInfoView" class="nc.ui.bd.supplier.stock.view.SupplierStockView" init-method="initUI">
+		<property name="model">
+			<ref bean="supStockAppModel" />
+		</property>
+		<property name="templateContainer">
+			<ref bean="templateContainer" />
+		</property>
+		<property name="nodekey">
+			<value>stock</value>
+		</property>
+		<property name="userdefitemPreparator">
+			<bean
+				class="nc.ui.uif2.editor.UserdefitemContainerPreparator">
+				<property name="container" ref="userdefitemContainer" />
+				<property name="params">
+					<list>
+						<bean class="nc.ui.uif2.editor.UserdefQueryParam">
+							<property name="mdfullname" value="uap.supstock" />
+							<property name="pos" value="0" />
+							<property name="prefix" value="def" />
+						</bean>					
+					</list>
+				</property>
+			</bean>
+		</property>
+		<property name="bodyActionMap">
+			<map>
+				<entry key="supaddress">
+					<list>
+						<ref bean="stockAddlineAction" />
+						<ref bean="stockDellineAction" />
+					</list>
+				</entry>
+			</map>
+		</property>
+		<property name="actions">
+			<list>
+				<ref bean="SupStockFirstLineAction" />
+				<ref bean="SupStockPreLineAction" />
+				<ref bean="SupStockNextLineAction" />
+				<ref bean="SupStockLastLineAction" />
+			</list>
+		</property>
+	</bean>
+	
+	<!-- 对话框工具（处理对话框的显示操作） -->
+	<bean id="supStockDialogMediator" class="nc.ui.bd.pub.orginfo.model.OrgInfoCardDialogMediator">
+		<property name="model" ref="supStockAppModel" />
+		<property name="dialogContainer" ref="supStockDialogContainer" />
+		<property name="name">
+			<bean class="nc.ui.uif2.I18nFB">
+				<property name="resDir" value="10140sub"/>
+				<property name="defaultValue" value="采购信息"/>
+				<property name="resId" value="110140sub0008"/>
+			</bean>
+		</property>
+		<property name="closingListener" ref="SupStockClosingListener" />
+	</bean>
+	
+	<!-- 对话框显示界面dialogContainer -->
+	<bean id="supStockDialogContainer" class="nc.ui.uif2.TangramContainer" init-method="initUI">
+		<property name="constraints">
+			<list>
+				<!-- 组织面板 -->
+				<bean class="nc.ui.uif2.tangramlayout.TangramLayoutConstraint">
+					<property name="newComponent" ref="SupStockInfoView" />
+					<property name="newComponentName">
+						<bean class="nc.ui.uif2.I18nFB">
+							<property name="resDir" value="10140sub"/>
+							<property name="defaultValue" value="采购信息"/>
+							<property name="resId" value="110140sub0008"/>
+						</bean>
+				    </property>
+				</bean>
+			</list>
+		</property>
+		<property name="actions">
+			<list>
+				<ref bean="SupStockEditAction" />
+				<ref bean="SupStockDeleteAction" />
+				<ref bean="stockSeparatorAction" />
+				<ref bean="SupStockRefreshSingleAction" />
+				<ref bean="stockSeparatorAction" />
+				<ref bean="SupStPrintActionGroup" />
+			</list>
+		</property>
+		<property name="editActions">
+			<list>
+				<ref bean="SupStockSaveAction" />
+				<ref bean="stockSeparatorAction" />
+				<ref bean="SupStockCancelAction" />
+			</list>
+		</property>
+		<property name="model">
+			<ref bean="supStockAppModel" />
+		</property>
+	</bean>
+	
+	
+	<!-- action list -->
+	<bean id="stockSeparatorAction" class="nc.funcnode.ui.action.SeparatorAction" />
+	
+	<bean id="SupStockEditAction" class="nc.ui.uif2.actions.EditAction">
+		<property name="model">
+			<ref bean="supStockAppModel"/>
+		</property>
+		<property name="code" value="StEdit" />
+	</bean>
+		
+	<bean id="SupStockDeleteAction" class="nc.ui.uif2.actions.DeleteAction">
+		<property name="model">
+			<ref bean="supStockAppModel" />
+		</property>
+		<property name="code" value="StDel" />
+	</bean>
+	<bean id="SupStockSaveAction" class="nc.ui.uif2.actions.SaveAction">
+		<property name="model">
+			<ref bean="supStockAppModel" />
+		</property>
+		<property name="editor">
+			<ref bean="SupStockInfoView" />
+		</property>
+		<property name="code" value="StSave" />
+	</bean>
+	<bean id="SupStockCancelAction" class="nc.ui.uif2.actions.CancelAction">
+		<property name="model">
+			<ref bean="supStockAppModel" />
+		</property>
+		<property name="code" value="StCancel" />
+	</bean>
+	 <bean id="supaddressAction" class="nc.ui.bd.supplier.baseinfo.action.SupAddressAction">
+    <property name="model" ref="supStockAppModel"></property>
+    <property name="funnode" value="10140SAD"></property>
+    <property name="refreshSingleAction" ref="SupStockRefreshSingleAction"></property>
+   </bean>
+	<!-- 冻结按钮 -->
+	<bean name="list_stockFreezeActionGroup"
+		class="nc.funcnode.ui.action.GroupAction">
+		<property name="actions">
+			<list>
+				<ref bean="list_orderFreezeAction" />
+				<ref bean="list_unOrderFreezeAction" />
+			</list>
+		</property>
+	</bean>
+	<bean name="list_orderFreezeAction"
+		class="nc.ui.bd.supplier.stock.action.SupBatchOrderFreezeAction">
+		<property name="model" ref="supStockAppModel" />
+	</bean>
+	<bean name="list_unOrderFreezeAction"
+		class="nc.ui.bd.supplier.stock.action.SupBatchUnOrderFreezeAction">
+		<property name="model" ref="supStockAppModel" />
+	</bean>
+	
+	
+	<!-- 查询查找按钮 -->
+	<bean id="SupStockRefreshAction" class="nc.ui.uif2.actions.RefreshAllAction">
+		<property name="model" ref="supStockAppModel" />
+		<property name="manager" ref="SupStockModelDataManager" />
+		<property name="code" value="StBatchRefresh" />
+	</bean>
+	<bean id="SupStockRefreshSingleAction" class="nc.ui.uif2.actions.RefreshSingleAction">
+		<property name="model" ref="supStockAppModel" />
+		<property name="code" value="StRefresh" />
+	</bean>
+	
+	<!-- 输入输出按钮 -->
+	<bean id="SupStListPrintActionGroup" class="nc.funcnode.ui.action.GroupAction">
+		<property name="code">
+			<value>printgroup</value>
+		</property>
+		<property name="actions">
+			<list>
+				<ref bean="SupStListTempletprintaction" />
+				<ref bean="SupStListTempletprintpreviewaction" />
+				<ref bean="SupStListOutputAction"/>
+			</list>
+		</property>
+	</bean>
+	<bean id="SupStListTempletprintpreviewaction" class="nc.ui.uif2.actions.TemplatePreviewAction">
+		<property name="model" ref="supStockAppModel" />
+		<property name="code" value="StTempPreview" />
+		<property name="nodeKey" value="supstocklist"></property>
+		<property name="datasource" ref="StockListDataSource"></property>		
+		<property name="printDlgParentConatiner" ref="supStockListView"></property>
+	</bean>
+	<bean id="SupStListTempletprintaction" class="nc.ui.uif2.actions.TemplatePrintAction">
+		<property name="model" ref="supStockAppModel" />
+		<property name="code" value="StTempPrint" />
+		<property name="nodeKey" value="supstocklist"></property>
+		<property name="datasource" ref="StockListDataSource"></property>
+		<property name="printDlgParentConatiner" ref="supStockListView"></property>
+	</bean>
+	<bean id="SupStListOutputAction" class="nc.ui.uif2.actions.OutputAction">
+		<property name="code" value="StOutput"></property>
+		<property name="model" ref="supStockAppModel" />
+		<property name="nodeKey" value="supstocklist"></property>
+		<property name="datasource" ref="StockListDataSource"></property>
+		<property name="printDlgParentConatiner" ref="supStockListView"></property>
+	</bean>
+	<bean id="StockListDataSource" class="nc.ui.bd.pub.actions.print.MetaDataAllDatasSource">
+		<property name="model" ref="supStockAppModel"></property>
+	</bean>
+	
+	<bean id="SupStPrintActionGroup" class="nc.funcnode.ui.action.GroupAction">
+		<property name="code">
+			<value>printgroup</value>
+		</property>
+		<property name="actions">
+			<list>
+				<ref bean="SupStTempletprintaction" />
+				<ref bean="SupStTempletprintpreviewaction" />
+				<ref bean="SupStOutputAction"/>
+			</list>
+		</property>
+	</bean>
+	<bean id="SupStTempletprintpreviewaction" class="nc.ui.uif2.actions.TemplatePreviewAction">
+		<property name="model" ref="supStockAppModel" />
+		<property name="code" value="StTempPreview" />
+		<property name="nodeKey" value="supstock"></property>
+		<property name="datasource" ref="SupStDataSource"></property>		
+		<property name="printDlgParentConatiner" ref="SupStockInfoView"></property>
+	</bean>
+	<bean id="SupStTempletprintaction" class="nc.ui.uif2.actions.TemplatePrintAction">
+		<property name="model" ref="supStockAppModel" />
+		<property name="code" value="StTempPrint" />
+		<property name="nodeKey" value="supstock"></property>
+		<property name="datasource" ref="SupStDataSource"></property>
+		<property name="printDlgParentConatiner" ref="SupStockInfoView"></property>
+	</bean>
+	<bean id="SupStOutputAction" class="nc.ui.uif2.actions.OutputAction">
+		<property name="model" ref="supStockAppModel" />
+		<property name="nodeKey" value="supstock"></property>
+		<property name="datasource" ref="SupStDataSource"></property>
+		<property name="printDlgParentConatiner" ref="SupStockInfoView"></property>
+	</bean>
+	<bean id="SupStDataSource" class="nc.ui.bd.pub.actions.print.MetaDataSingleSelectDataSource">
+		<property name="model" ref="supStockAppModel"></property>
+	</bean>
+
+	<!-- 浏览按钮 卡片界面按钮-->
+	<bean id="SupStockFirstLineAction" class="nc.ui.uif2.actions.FirstLineAction">
+		<property name="model" ref="supStockAppModel" />
+		<property name="code" value="StFirstLine" />
+	</bean>
+	<bean id="SupStockNextLineAction" class="nc.ui.uif2.actions.NextLineAction">
+		<property name="model" ref="supStockAppModel" />
+		<property name="code" value="StNextLine" />
+	</bean>
+	<bean id="SupStockPreLineAction" class="nc.ui.uif2.actions.PreLineAction">
+		<property name="model" ref="supStockAppModel" />
+		<property name="code" value="StPreLine" />
+	</bean>
+	<bean id="SupStockLastLineAction" class="nc.ui.uif2.actions.LastLineAction">
+		<property name="model" ref="supStockAppModel" />
+		<property name="code" value="StLastLine" />
+	</bean>
+	<!-- 卡片界面表体按钮 -->
+	<bean id="stockAddlineAction" class="nc.ui.uif2.actions.AddLineAction">
+		<property name="model" ref="supStockAppModel"></property>
+		<property name="cardpanel" ref="SupStockInfoView"></property>
+	</bean>
+	<bean id="stockDellineAction" class="nc.ui.uif2.actions.DelLineAction">
+		<property name="model" ref="supStockAppModel"></property>
+		<property name="cardpanel" ref="SupStockInfoView"></property>
+	</bean>
+	
+	
+	<!-- closingHandler -->
+	<bean id="SupStockClosingListener" class="nc.ui.uif2.FunNodeClosingHandler">
+		<property name="model">
+			<ref bean="supStockAppModel" />
+		</property>
+		<property name="saveaction">
+			<ref bean="SupStockSaveAction" />
+		</property>
+		<property name="cancelaction">
+			<ref bean="SupStockCancelAction" />
+		</property>
+	</bean>
+</beans>

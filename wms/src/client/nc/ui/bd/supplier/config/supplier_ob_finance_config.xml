@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- 按组织查看供应商财务信息 -->
+
+	<!-- 扩展页签标识 -->
+	<bean id="supplier_ob_finance" class="nc.ui.bd.uitabextend.DefaultUIExtComponent">
+		<property name="actions">
+			<list>
+				<ref bean="obFinanceRefreshAction" />
+				<ref bean="separatorAction" />
+				<ref bean="obFinancePrintGroupAction" />
+			</list>
+		</property>
+		<property name="exComponent" ref="financeEntry" />
+	</bean>
+
+	<bean id="userdefitemFinancePreprocessor" class="nc.ui.uif2.editor.UserdefitemUIPreprocessor"
+		init-method="init">
+		<property name="container" ref="userdefitemContainer" />
+		<property name="params">
+			<list>
+				<bean class="nc.ui.uif2.userdefitem.QueryParam">
+					<property name="mdfullname" value="uap.supfinance" />
+				</bean>
+			</list>
+		</property>
+	</bean>
+
+
+	<!-- 界面布局， 入口须实现ITabbedPaneAwareComponent  -->
+	<bean id="financeEntry" class="nc.ui.bd.pub.query.OrgQueryRefPanel"
+		init-method="initUI">
+		<property name="model" ref="obSupFinanceAppModel" />
+		<property name="dataManager" ref="financeModelDataManager" />
+		<property name="refNodeName" value="财务组织" />
+		<property name="labelName">
+			<bean class="nc.ui.uif2.I18nFB">
+				<property name="resDir" value="10140sub"/>
+				<property name="defaultValue" value="财务组织"/>
+				<property name="resId" value="110140sub0014"/>
+			</bean>
+		</property>
+		<property name="pageCode" value="finance_info" />
+		<property name="listView" ref="obSupFinanceListView" />
+		<!--
+			<property name="paginationBar" ref="financePaginationBar" />
+		-->
+		<property name="name" >
+			<bean class="nc.ui.uif2.I18nFB">
+				<property name="resDir" value="10140sub"/>
+				<property name="defaultValue" value="财务信息"/>
+				<property name="resId" value="110140sub0011"/>
+			</bean>
+		</property>
+	</bean>
+
+	<!-- 界面元素 ###########################################################-->
+	<!-- 列表视图 -->
+	<bean id="obSupFinanceListView" class="nc.ui.bd.supplier.finance.view.SupFinanceListView"
+		init-method="initUI">
+		<property name="templateContainer" ref="templateContainer" />
+		<property name="model" ref="obSupFinanceAppModel" />
+		<property name="nodekey" value="ob_finance" />
+		<property name="name" >
+			<bean class="nc.ui.uif2.I18nFB">
+				<property name="resDir" value="10140sub"/>
+				<property name="defaultValue" value="财务信息"/>
+				<property name="resId" value="110140sub0011"/>
+			</bean>
+		</property>		
+		<property name="billListPanelValueSetter">
+			<bean class="nc.ui.uif2.editor.BillListView$VOBillListPanelValueSetter" />
+		</property>
+		<property name="userdefitemListPreparator">
+			<bean class="nc.ui.uif2.editor.UserdefitemContainerListPreparator">
+				<property name="container" ref="userdefitemContainer"></property>
+				<property name="params">
+					<list>
+						<bean class="nc.ui.uif2.editor.UserdefQueryParam">
+							<property name="mdfullname" value="uap.supfinance" />
+							<property name="pos" value="0" />
+							<property name="prefix" value="def" />
+						</bean>
+					</list>
+				</property>
+			</bean>
+		</property>
+		<property name="south" ref="financePaginationBar"></property>
+	</bean>
+
+
+	<!-- 分页面板 -->
+	<bean id="financePaginationBar" class="nc.ui.uif2.components.pagination.PaginationBar">
+		<property name="paginationModel">
+			<ref bean="financePaginationModel" />
+		</property>
+	</bean>
+
+	<!-- 分页model -->
+	<bean id="financePaginationModel" class="nc.ui.uif2.components.pagination.PaginationModel"
+		init-method="init">
+		<property name="paginationQueryService">
+			<ref bean="financeService" />
+		</property>
+	</bean>
+	<bean id="financePaginationDelegator"
+		class="nc.ui.uif2.components.pagination.BillManagePaginationDelegator">
+		<property name="paginationModel">
+			<ref bean="financePaginationModel" />
+		</property>
+		<property name="billModel">
+			<ref bean="obSupFinanceAppModel" />
+		</property>
+	</bean>
+
+	<!-- 模型 -->
+	<bean id="obSupFinanceAppModel" class="nc.ui.uif2.model.BillManageModel">
+		<property name="context" ref="context" />
+		<property name="businessObjectAdapterFactory">
+			<bean class="nc.vo.bd.meta.GeneralBDObjectAdapterFactory">
+				<property name="mode" value="VO" />
+			</bean>
+		</property>
+	</bean>
+	<bean id="financeModelDataManager" class="nc.ui.bd.supplier.finance.model.SupFinanceOBDataManager">
+		<property name="model" ref="obSupFinanceAppModel" />
+		<property name="paginationModel">
+			<ref bean="financePaginationModel" />
+		</property>
+		<property name="delegator">
+			<ref bean="financePaginationDelegator" />
+		</property>
+		<property name="service" ref="financeService" />
+	</bean>
+	<bean id="financeService"
+		class="nc.ui.bd.supplier.finance.model.SupFinanceAppModelService" />
+
+	<!-- Action -->
+	<bean id="obFinanceRefreshAction" class="nc.ui.uif2.actions.RefreshAllAction">
+		<property name="model" ref="obSupFinanceAppModel" />
+		<property name="manager" ref="financeModelDataManager"></property>
+	</bean>
+
+	<bean id="obFinancePrintGroupAction" class="nc.funcnode.ui.action.GroupAction">
+		<property name="code" value="Print"></property>
+		<property name="actions">
+			<list>
+				<ref bean="obFinancePrintAction" />
+				<ref bean="obFinancePreviewPrintAction" />
+				<ref bean="obFinanceOutputAction" />
+			</list>
+		</property>
+	</bean>
+	<bean id="obFinancePrintAction"
+		class="nc.ui.bd.pub.actions.print.BDTemplatePaginationPrintAction">
+		<property name="model" ref="obSupFinanceAppModel" />
+		<property name="nodeKey" value="financequery" />
+		<property name="paginationModel" ref="financePaginationModel" />
+		<property name="printFactory" ref="obFinancePrintFactory" />
+		<property name="printDlgParentConatiner" ref="obSupFinanceListView" />
+	</bean>
+	<bean id="obFinancePreviewPrintAction" class="nc.ui.bd.pub.actions.print.BDTemplatePaginationPreviewAction">
+	<property name="printAction" ref="obFinancePrintAction"></property>
+	</bean>
+	<bean id="obFinanceOutputAction" class="nc.ui.bd.pub.actions.print.BDPaginationOutputAction">
+		<property name="model" ref="obSupFinanceAppModel" />
+		<property name="nodeKey" value="financequery" />
+		<property name="paginationModel" ref="financePaginationModel" />
+		<property name="printFactory" ref="obFinancePrintFactory" />
+		<property name="printDlgParentConatiner" ref="obSupFinanceListView" />
+	</bean>
+	<bean id="obFinancePrintFactory"
+		class="nc.ui.bd.pub.actions.print.DefaultTemplatePagePrintFactory">
+		<property name="mdId" value="3b6d7504-95e9-4557-94c5-f6b562509420" />
+		<property name="qryService">
+			<bean class="nc.ui.bd.pub.orginfo.model.OrgInfoPrintDataQryService">
+				<constructor-arg value="3b6d7504-95e9-4557-94c5-f6b562509420" />
+				<property name="paths">
+					<list>
+						<value>pk_supplier.pk_org.name</value>
+						<value>pk_supplier.code</value>
+						<value>pk_supplier.name</value>
+					</list>
+				</property>
+			</bean>
+		</property>
+	</bean>
+</beans>

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<import resource="supplier_finance_config.xml" />
+
+	<!-- 数据模型管理器，应根据基本信息查询全部分配到财务组织的数据 -->
+	<bean id="supFinanceModelDataManager" class="nc.ui.bd.pub.orginfo.model.DefaultAppPFModelDataManager">
+		<property name="orgModel" ref="supFinanceAppModel" />
+		<property name="baseModel" ref="baseinfoModel" />
+		<property name="exbeanname" value="supplier_finance" />
+	</bean>
+
+	<!-- Mediator 负责基本信息与组织信息之间的交互（处理数据加载等） -->
+	<bean id="supFinanceMediator" class="nc.ui.bd.pub.orginfo.model.PFOrgInfoMediator">
+		<property name="baseModel" ref="baseinfoModel" />
+		<property name="pfModelDataManager" ref="supFinanceModelDataManager" />
+		<property name="orgInfoModel" ref="supFinanceAppModel" />
+		<property name="orgInfoPanel" ref="supFinanceListView" />
+	</bean>
+	
+	<bean id="supFinanceEditAction" class="nc.ui.bd.supplier.pf.action.SupplierPfOrgTabEditAction">
+		<property name="model">
+			<ref bean="supFinanceAppModel" />
+		</property>
+		<property name="code" value="FiEdit" />
+		<property name="pfModel" ref="approveModel"/>
+	</bean>
+
+	<bean id="supFinanceSaveAction" class="nc.ui.bd.supplier.pf.action.SupplierPfOrgTabSaveAction">
+		<property name="model" ref="supFinanceAppModel" />
+		<property name="baseModel" ref="baseinfoModel" />
+		<property name="editor" ref="supFinanceView" />
+		<property name="code" value="FiSave" />
+		<property name="exbeanname" value="supplier_finance" />
+		<property name="pfModel" ref="approveModel"/>
+	</bean>
+
+	<bean id="supplier_finance" class="nc.ui.bd.uitabextend.DefaultUIExtComponent">
+		<property name="actions">
+			<list>
+				<ref bean="supFinanceEditAction" />
+				<ref bean="financeseparatorAction" />
+				<ref bean="supFinanceRefreshAction" />
+			</list>
+		</property>
+		<property name="exComponent" ref="supFinanceListView" />
+		<property name="closingListener" ref="supFinanceClosingListener" />
+	</bean>
+
+	<bean id="supFinanceDialogContainer" class="nc.ui.uif2.TangramContainer"
+		init-method="initUI">
+		<property name="constraints">
+			<list>
+				<!-- 组织面板 -->
+				<bean class="nc.ui.uif2.tangramlayout.TangramLayoutConstraint">
+					<property name="newComponent" ref="supFinanceView" />
+					<property name="newComponentName">
+						<bean class="nc.ui.uif2.I18nFB">
+							<property name="resDir" value="10140sub" />
+							<property name="defaultValue" value="财务信息" />
+							<property name="resId" value="110140sub0011" />
+						</bean>
+					</property>
+				</bean>
+			</list>
+		</property>
+		<property name="actions">
+			<list>
+				<ref bean="supFinanceEditAction" />
+				<ref bean="financeseparatorAction" />
+				<ref bean="supFinanceRefreshSingleAction" />
+			</list>
+		</property>
+		<property name="editActions">
+			<list>
+				<ref bean="supFinanceSaveAction" />
+				<ref bean="financeseparatorAction" />
+				<ref bean="supFinanceCancelAction" />
+			</list>
+		</property>
+		<property name="model">
+			<ref bean="supFinanceAppModel" />
+		</property>
+	</bean>
+	
+	<!-- editor -->
+	<bean id="supFinanceView" class="nc.ui.bd.supplier.finance.view.SupplierFinanceView"
+		init-method="initUI">
+		<property name="model">
+			<ref bean="supFinanceAppModel" />
+		</property>
+		<property name="templateContainer">
+			<ref bean="templateContainer" />
+		</property>
+		<property name="nodekey">
+			<value>finance</value>
+		</property>
+		<property name="userdefitemPreparator">
+			<bean class="nc.ui.uif2.editor.UserdefitemContainerPreparator">
+				<property name="container" ref="userdefitemContainer" />
+				<property name="params">
+					<list>
+						<bean class="nc.ui.uif2.editor.UserdefQueryParam">
+							<property name="mdfullname" value="uap.supfinance" />
+							<property name="pos" value="0" />
+							<property name="prefix" value="def" />
+						</bean>
+					</list>
+				</property>
+			</bean>
+		</property>
+		<property name="actions">
+			<list>
+				<ref bean="supFinanceFirstLineAction" />
+				<ref bean="supFinancePreLineAction" />
+				<ref bean="supFinanceNextLineAction" />
+				<ref bean="supFinanceLastLineAction" />
+			</list>
+		</property>
+		<property name="import" value="true"/>
+	</bean>
+
+</beans>

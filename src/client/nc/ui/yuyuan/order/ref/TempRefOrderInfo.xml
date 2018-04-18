@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	<!-- 转单参照单据信息 -->
+	<bean id="refInfo" class="nc.ui.pubapp.billref.src.RefInfo">
+		<property name="headVO">
+			<!-- 上游单据主表VO -->
+			<bean class="nc.vo.yuyuan.yy_ordertemp.YyOrderTempVO">
+			</bean>
+		</property>
+		<!-- 上游单据子表VO -->
+		<property name="bodyVO">
+			<bean class="nc.vo.yuyuan.yy_ordertemp.YyOrderTempBVO">
+			</bean>
+		</property>
+		<!-- 上游单据AGGVO -->
+		<property name="billVO">
+			<bean class="nc.vo.yuyuan.yy_ordertemp.AggYyOrderTempVO">
+			</bean>
+		</property>
+		<!-- 上游单据视图VO -->
+		<property name="viewVO">
+			<bean class="nc.vo.yuyuan.yy_ordertemp.OrderTempViewVO">
+			</bean>
+		</property>
+		<property name="billNodeKey" value="40H00101B" />
+		<property name="billViewNodeKey" value="40H00101L" />
+		<property name="sourcevoPkName" value="csourceid"></property>
+		<property name="sourcevoBillNOName" value="vsourcecode"></property>
+		<!-- 上游单据查询服务 -->
+		<property name="queryService">
+			<bean class="nc.ui.yuyuan.order.ref.TempQueryServiceForOrder">
+			</bean>
+		</property>
+	</bean>
+</beans>

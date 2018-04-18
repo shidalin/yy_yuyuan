@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- 远程调用加载器 -->
+	<bean id="remoteCallCombinatorCaller" class="nc.ui.uif2.editor.UIF2RemoteCallCombinatorCaller">
+		<property name="remoteCallers">
+			<list>
+				<ref bean="templateContainer" />
+			</list>
+		</property>
+	</bean>
+
+	<!-- 模板加载器：扩展页签必需 -->
+	<bean id="associateTemplateContainer" class="nc.ui.uif2.editor.TemplateContainer"
+		init-method="load">
+		<property name="context" ref="context" />
+		<property name="nodeKeies">
+			<list>
+			    <value>base</value>
+				<value>approve</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean name="approvePfModel" class="nc.ui.bd.supplier.pf.model.SupplierPfApproveModel">
+		<property name="context" ref="context"></property>
+		<property name="businessObjectAdapterFactory" ref="boadapterfacotry"></property>
+	</bean>
+
+	<bean name="dialogContainer" class="nc.ui.uif2.PlugableTangramContainer" init-method="initUI">
+		<property name="tangramLayoutRoot">
+			<bean class="nc.ui.uif2.tangramlayout.node.VSNode">
+				<property name="up">
+					<bean class="nc.ui.uif2.tangramlayout.node.CNode">
+						<property name="component" ref="approveEditor"></property>
+					</bean>
+				</property>
+				<property name="down">
+					<bean class="nc.ui.uif2.tangramlayout.node.CNode">
+						<property name="component" ref="pfBaseinfoEditor"></property>
+					</bean>
+				</property>
+				<property name="dividerLocation" value="0.3f"></property>
+			</bean>
+		</property>
+	</bean>
+	
+	<!-- 申请单共享信息面板 -->
+	<bean id="approveEditor" class="nc.ui.bd.supplier.pf.view.SupplierPfApproveCardPanel" init-method="initUI">
+		<property name="model" ref="approvePfModel" />
+		<property name="templateContainer" ref="associateTemplateContainer" />
+		<property name="nodekey" value="approve" />
+		<property name="supBaseInfoView" ref="pfBaseinfoEditor" />
+	</bean>
+
+	<!--卡控件-->
+	<bean id="pfBaseinfoEditor" class="nc.ui.bd.supplier.pf.view.SupplierPfBaseInfoCardPanel" init-method="initUI">
+		<property name="templateContainer" ref="templateContainer"/>
+		<property name="model" ref="approvePfModel"/>
+		<property name="userdefitemPreparator">
+			<bean class="nc.ui.uif2.editor.UserdefitemContainerPreparator">
+				<property name="container" ref="userdefitemContainer">
+				</property>
+				<property name="params">
+					<list>
+						<bean class="nc.ui.uif2.editor.UserdefQueryParam">
+							<property name="mdfullname" value="uap.supplier"></property>
+							<property name="prefix" value="def"></property>
+							<property name="pos" value="0"></property>
+						</bean>
+					</list>				
+				</property>
+			</bean>
+		</property>
+		<property name="nodekey" ><value>base</value></property>
+	</bean>
+
+</beans>
+
+

@@ -1,0 +1,39 @@
+-- Create table
+create table GL_VOUCHERPFXXLOG
+(
+  pk_voucherpfxxlog CHAR(20) not null,
+  systemname        VARCHAR2(100),
+  remark            VARCHAR2(300),
+  pk_org            VARCHAR2(20) default '~',
+  pk_group          VARCHAR2(20) default '~',
+  dr                NUMBER(10) default 0,
+  ts                CHAR(19) default to_char(sysdate,'yyyy-mm-dd?hh24:mi:ss')
+)
+tablespace NNC_DATA01
+  pctfree 10
+  initrans 1
+  maxtrans 255
+  storage
+  (
+    initial 512K
+    next 512K
+    minextents 1
+    maxextents unlimited
+    pctincrease 0
+  );
+-- Create/Recreate primary, unique and foreign key constraints 
+alter table GL_VOUCHERPFXXLOG
+  add constraint PK_VOUCHERPFXXLOG primary key (PK_VOUCHERPFXXLOG)
+  using index 
+  tablespace NNC_DATA01
+  pctfree 10
+  initrans 2
+  maxtrans 255
+  storage
+  (
+    initial 512K
+    next 512K
+    minextents 1
+    maxextents unlimited
+    pctincrease 0
+  );

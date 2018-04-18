@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions
+xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"
+xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+xmlns:jaxws="http://java.sun.com/xml/ns/jaxws"
+jaxb:version="2.0"
+xmlns:ns0="http://yunyuan.itf.nc/IWMSMessage"
+targetNamespace="http://yunyuan.itf.nc/IWMSMessage">
+
+<jaxws:bindings>
+	<jaxws:package name="nc.itf.yunyuan"/>
+</jaxws:bindings>
+
+<wsdl:types>
+   <xsd:schema xmlns:ns="http://yunyuan.itf.nc/IWMSMessage"
+			xmlns:businessException="http://pub.vo.nc/BusinessException"
+			attributeFormDefault="unqualified"
+			elementFormDefault="unqualified"
+			targetNamespace="http://yunyuan.itf.nc/IWMSMessage" jaxb:version="2.0">
+	<xsd:annotation>
+    	<xsd:appinfo>
+   			<jaxb:schemaBindings>
+    			<jaxb:package name="nc.itf.yunyuan"/>
+    		</jaxb:schemaBindings>
+   		</xsd:appinfo>
+   	</xsd:annotation>
+	 <xsd:import namespace="http://pub.vo.nc/BusinessException" schemaLocation="/nc/vo/pub/BusinessException.xsd"/>
+	<xsd:element name="messageProcessor">
+         <xsd:complexType>
+            <xsd:sequence>
+				<xsd:element name="string"  minOccurs="0" nillable="true" type="xsd:string"/>
+             </xsd:sequence>  
+         </xsd:complexType>
+     </xsd:element>
+	<xsd:element name="messageProcessorResponse">
+         <xsd:complexType>
+			<xsd:sequence/>
+         </xsd:complexType>
+     </xsd:element>
+   </xsd:schema>
+</wsdl:types>
+    <wsdl:message name="messageProcessorRequest">
+        <wsdl:part name="parameters"  element="ns0:messageProcessor"/>
+    </wsdl:message>
+    <wsdl:message name="messageProcessorResponse">
+        <wsdl:part name="parameters"  element="ns0:messageProcessorResponse"/>
+    </wsdl:message>
+    <wsdl:message name="BusinessException">
+        <wsdl:part name="BusinessException"  xmlns:businessException="http://pub.vo.nc/BusinessException"  element="businessException:BusinessException"/>
+    </wsdl:message>
+
+    <wsdl:portType name="IWMSMessagePortType">
+        <wsdl:operation name="messageProcessor">
+            <wsdl:input message="ns0:messageProcessorRequest" wsaw:Action="urn:messageProcessor"/>
+            <wsdl:output message="ns0:messageProcessorResponse" wsaw:Action="urn:messageProcessorResponse"/>
+            <wsdl:fault name="BusinessException" message="ns0:BusinessException"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    
+    
+    <wsdl:binding name="IWMSMessageSOAP11Binding" type="ns0:IWMSMessagePortType">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <wsdl:operation name="messageProcessor">
+            <soap:operation soapAction="urn:messageProcessor" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+     		<wsdl:fault name="BusinessException">
+        		<soap:fault name="BusinessException" use="literal"/>
+      		</wsdl:fault>
+
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="IWMSMessage">
+        <wsdl:port name="IWMSMessageSOAP11port_http" binding="ns0:IWMSMessageSOAP11Binding">
+            <soap:address location="http://localhost/uapws/service/IWMSMessage"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

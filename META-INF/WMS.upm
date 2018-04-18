@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<module>
+	<public>
+		<component singleton="true" tx="CMT" supportAlias="true" name="wms" active="true" remote="true">
+			<interface>nc.itf.yunyuan.IWMSMessage</interface>
+			<implementation>nc.impl.yuyuan.WMSMessageImpl</implementation>
+			<extension class="nc.uap.ws.deploy.OxbWSExtensionProcessor">
+				<wsdl>/nc/itf/yunyuan/IWMSMessage.wsdl</wsdl>
+				<address>/wms/messageProcessor</address>
+			</extension>
+		</component>
+	</public>
+	<private>
+	</private>
+</module>

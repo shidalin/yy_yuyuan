@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- 模型部分配置########################################################### -->
+ 
+	<bean id="context" class="nc.vo.uif2.LoginContext" />
+
+	<!-- 扩展点管理：扩展页签必需 -->
+	<bean id="exinfoloader" class="nc.ui.bd.uitabextend.ExinfoLoader">
+		<property name="current_md_ID" value="10140MAQU" />
+	</bean>
+
+	<bean id="uiTabExtMnger" class="nc.ui.bd.uitabextend.UITabExtManager">
+		<property name="targetComponent" ref="baseUI" />
+	</bean>
+	
+	<bean id="remoteCallCombinatorCaller" class="nc.ui.uif2.editor.UIF2RemoteCallCombinatorCaller">
+		<property name="remoteCallers">
+			<list>
+				<ref bean="templateContainer" />
+				<ref bean="userdefitemContainer" />
+			</list>
+		</property>
+	</bean>
+
+	<!-- 模板加载器：扩展页签必需 -->
+	<bean id="templateContainer" class="nc.ui.uif2.editor.TemplateContainer">
+		<property name="context" ref="context" />
+	</bean>
+
+	<!-- 用户定义属性加载器，同一家在所有页签的用户定义属性 -->
+	<bean id="userdefitemContainer" class="nc.ui.uif2.userdefitem.UserDefItemContainer">
+		<property name="context" ref="context" />
+	</bean>
+
+	<!-- 界面元素 ###########################################################-->
+	<!--卡控件-->
+	<bean id="baseUI" class="nc.ui.bd.pub.query.OrgBrowseBaseUI" />
+
+	<bean id="InitDataListener" class="nc.ui.bd.pub.query.OrgBrowseInitDataListener">
+		<property name="baseUI" ref="baseUI" />
+		<property name="container" ref="container" />
+		<property name="uiTabExtMnger" ref="uiTabExtMnger" />
+	</bean>
+
+	<!-- toftpanelActionContributors ######################################-->
+	<bean id="toftpanelActionContributors" class="nc.ui.uif2.actions.ActionContributors">
+		<property name="contributors">
+			<list></list>
+		</property>
+	</bean>
+
+	<!--  Actions ############################################################# -->
+	<bean id="separatorAction" class="nc.funcnode.ui.action.SeparatorAction" />
+
+	<!-- 界面布局总装########################################################### -->
+	<bean id="container" class="nc.ui.uif2.TangramContainer" init-method="initUI">
+		<property name="tangramLayoutRoot">
+			<bean class="nc.ui.uif2.tangramlayout.node.TBNode">
+				<property name="tabs">
+					<list>
+						<bean class="nc.ui.uif2.tangramlayout.node.CNode">
+							<property name="component" ref="baseUI" />
+						</bean>
+					</list>
+				</property>
+			</bean>
+		</property>
+	</bean>
+
+</beans>
+
+
